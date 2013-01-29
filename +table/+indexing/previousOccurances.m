@@ -32,14 +32,8 @@ function I = previousOccurances(key,lags,nUniqueKeys,C)
 
 % TODO: This function is a bottleneck and might be rewritten as mex
 
-if length(nUniqueKeys)>1,
-    warning('You may be using an old form of this function where U was supplied instead of nUniqueKeys');
-    nUniqueKeys = size(nUniqueKeys,1);
-end
-
-if nargin<4,
-    C = (1:nUniqueKeys)';
-end
+narginchk(2,4)
+nargoutchk(0,1)
 
 if ~isvector(lags) || any(lags<=0) || any(abs(ceil(lags)-lags)>1e-6),
     error('Expecting positive integer lags');
@@ -49,10 +43,19 @@ if b~=1,
     error('Expecting vector key');
 end
 if nargin>=3,
+    if length(nUniqueKeys)>1,
+        warning('You may be using an old form of this function where U was supplied instead of nUniqueKeys');
+        nUniqueKeys = size(nUniqueKeys,1);
+    end
     nKinds = nUniqueKeys;
 else
     nKinds = length(unique(key(1:min(500,a))))+10; % Reason apparent in loop below
+    %TODO: define nUniqueKeys
 end
+if nargin<4,
+    C = (1:nUniqueKeys)';
+end
+
 maxLags = max(lags);
 prevI = nan(nKinds,maxLags);
 I = nan(a,length(lags));
