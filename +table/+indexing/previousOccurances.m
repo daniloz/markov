@@ -50,7 +50,7 @@ if nargin>=3,
     nKinds = nUniqueKeys;
 else
     nKinds = length(unique(key(1:min(500,a))))+10; % Reason apparent in loop below
-    %TODO: define nUniqueKeys
+    nUniqueKeys = nKinds;
 end
 if nargin<4,
     C = (1:nUniqueKeys)';
