@@ -37,6 +37,8 @@ function I = previousOccurances(key,lags,keyMax,C)
 if ~isvector(lags) || any(lags<=0) || any(abs(ceil(lags)-lags)>1e-6),
     error('Expecting positive integer lags');
 end
+lags = lags(:); % Convert to column vector
+
 [a,b] = size(key);
 if b~=1,
     error('Expecting vector key');
@@ -52,9 +54,20 @@ end
 
 if nargin<4,
     C = (1:keyMax)';
+else
+    C = C(:); % Convert to column vector
 end
 
 maxLags = max(lags);
+
+fprintf('\nCall with %4d keys\n', length(key));
+% key, lags, nKinds, maxLags, C
+tMex = tic;
+Imex = mPreviousOccurances(key, lags, keyMax, maxLags, C);
+tMex = toc(tMex);
+fprintf('Mex ran in %f s\n', tMex)
+
+tMat = tic;
 prevI = nan(keyMax,maxLags);
 I = nan(a,length(lags));
 if 0, % alternative algo, slightly faster because vectorized, but still clobbers cache?
@@ -91,6 +104,12 @@ else
         prevI(key(k),1) = k;
     end
 end
+tMat = toc(tMat);
+fprintf('Matlab code in %f s\n', tMat);
+fprintf('Mex faster by factor %f\n', tMat/tMex);
+mexOK = isequaln(I,Imex);
+fprintf('Mex and Matlab results are equal = %d (1 = true / 0 = false)\n', mexOK);
+
 %             agree= isequalwithequalnans(I,Inew);
 %             if agree, disp(['yay lags=' num2str(lags)]);
 %             else
